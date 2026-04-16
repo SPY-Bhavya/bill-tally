@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GST Reconciliation — Sajan Shree Garment</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4f8;
+      min-height: 100vh;
+      color: #1e293b;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+      color: white;
+      padding: 28px 20px;
+      text-align: center;
+    }
+    .header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
+    .header p  { margin-top: 6px; opacity: 0.88; font-size: 15px; }
+
+    /* ── Container ── */
+    .container { max-width: 760px; margin: 36px auto; padding: 0 18px 60px; }
+
+    /* ── Steps bar ── */
+    .steps {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .step {
+      flex: 1;
+      background: white;
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      border: 2px solid #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .step.active { border-color: #1d4ed8; color: #1d4ed8; }
+    .step.done   { border-color: #16a34a; color: #16a34a; }
+    .step-num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 7px;
+      font-size: 14px; font-weight: 800;
+      background: #e2e8f0; color: #94a3b8;
+      transition: background 0.2s, color 0.2s;
+    }
+    .step.active .step-num { background: #1d4ed8; color: white; }
+    .step.done   .step-num { background: #16a34a; color: white; }
+
+    /* ── Upload section ── */
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .upload-card {
+      background: white;
+      border-radius: 18px;
+      padding: 30px 20px 24px;
+      border: 2.5px dashed #cbd5e1;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.2s, background 0.2s, transform 0.1s;
+      user-select: none;
+    }
+    .upload-card:hover       { border-color: #1d4ed8; background: #eff6ff; transform: translateY(-2px); }
+    .upload-card.drag-over   { border-color: #1d4ed8; background: #dbeafe; }
+    .upload-card.has-file    { border-color: #16a34a; border-style: solid; background: #f0fdf4; }
+
+    .upload-card .icon  { font-size: 46px; margin-bottom: 12px; display: block; }
+    .upload-card .label {
+      font-weight: 700; font-size: 16px;
+      color: #0f172a; margin-bottom: 5px;
+    }
+    .upload-card .hint  { font-size: 12.5px; color: #64748b; line-height: 1.5; }
+    .upload-card .fname {
+      margin-top: 12px;
+      font-size: 13px; font-weight: 600;
+      color: #16a34a;
+      word-break: break-all;
+    }
+    .upload-card .fname.empty { color: #94a3b8; font-weight: 400; }
+
+    input[type="file"] { display: none; }
+
+    /* ── Run button ── */
+    .btn-run {
+      width: 100%;
+      background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(29,78,216,0.35);
+    }
+    .btn-run:hover:not(:disabled) {
+      opacity: 0.93;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(29,78,216,0.40);
+    }
+    .btn-run:active:not(:disabled) { transform: translateY(0); }
+    .btn-run:disabled {
+      background: #cbd5e1;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* ── Error ── */
+    .error-box {
+      display: none;
+      background: #fef2f2;
+      border: 1.5px solid #fca5a5;
+      color: #b91c1c;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    /* ── Loading ── */
+    #loadingSection {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .spinner {
+      width: 60px; height: 60px;
+      border: 6px solid #e2e8f0;
+      border-top-color: #1d4ed8;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-size: 20px; font-weight: 700; color: #1e293b; }
+    .loading-sub   { font-size: 14px; color: #64748b; margin-top: 8px; }
+
+    /* ── Results ── */
+    #resultsSection { display: none; }
+
+    .results-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .results-header .check { font-size: 52px; }
+    .results-header h2 {
+      font-size: 22px; font-weight: 800;
+      color: #0f172a; margin-top: 10px;
+    }
+    .results-header p { font-size: 14px; color: #64748b; margin-top: 4px; }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .result-card {
+      background: white;
+      border-radius: 16px;
+      padding: 22px 16px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .result-card .num  { font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
+    .result-card .lbl  { font-size: 13px; font-weight: 600; color: #64748b; }
+    .rc-matched  .num  { color: #16a34a; }
+    .rc-portal   .num  { color: #dc2626; }
+    .rc-tally    .num  { color: #d97706; }
+    .rc-notes    .num  { color: #7c3aed; }
+
+    /* ── Download button ── */
+    .btn-download {
+      width: 100%;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,0.35);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-download:hover { opacity: 0.92; transform: translateY(-2px); }
+
+    .btn-again {
+      width: 100%;
+      margin-top: 12px;
+      background: white;
+      color: #1d4ed8;
+      border: 2px solid #1d4ed8;
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-again:hover { background: #eff6ff; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .upload-grid  { grid-template-columns: 1fr; }
+      .results-grid { grid-template-columns: 1fr 1fr; }
+      .steps        { gap: 6px; }
+      .step         { padding: 10px 6px; font-size: 11px; }
+      .header h1    { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <h1>📊 GST Reconciliation Tool</h1>
+    <p>Sajan Shree Garment &nbsp;·&nbsp; GSTR-2B Portal vs Tally Matching</p>
+  </div>
+
+  <div class="container">
+
+    <!-- Step indicators -->
+    <div class="steps" id="stepsBar">
+      <div class="step active" id="step1">
+        <div class="step-num">1</div>Upload Files
+      </div>
+      <div class="step" id="step2">
+        <div class="step-num">2</div>Process
+      </div>
+      <div class="step" id="step3">
+        <div class="step-num">3</div>Download Report
+      </div>
+    </div>
+
+    <!-- ══ UPLOAD SECTION ══ -->
+    <div id="uploadSection">
+
+      <div class="upload-grid">
+
+        <!-- Portal file -->
+        <div class="upload-card"
+             id="card_gstr2b"
+             onclick="document.getElementById('input_gstr2b').click()"
+             ondragover="onDragOver(event,'gstr2b')"
+             ondragleave="onDragLeave('gstr2b')"
+             ondrop="onDrop(event,'gstr2b')">
+          <span class="icon">🏛️</span>
+          <div class="label">Portal File</div>
+          <div class="hint">GSTR-2B downloaded<br>from GST Portal<br><strong>(.xls / .xlsx)</strong></div>
+          <div class="fname empty" id="fname_gstr2b">Click or drag file here</div>
+          <input type="file" id="input_gstr2b" accept=".xls,.xlsx"
+                 onchange="fileChosen(this,'gstr2b')">
+        </div>
+
+        <!-- Tally file -->
+        <div class="upload-card"
+             id="card_tally"
+             onclick="document.getElementById('input_tally').click()"
+             ondragover="onDragOver(event,'tally')"
+             ondragleave="onDragLeave('tally')"
+             ondrop="onDrop(event,'tally')">
+          <span class="icon">📒</span>
+          <div class="label">Tally File</div>
+          <div class="hint">GSTR-3B Voucher Register<br>exported from Tally<br><strong>(.xls / .xlsx)</strong></div>
+          <div class="fname empty" id="fname_tally">Click or drag file here</div>
+          <input type="file" id="input_tally" accept=".xls,.xlsx"
+                 onchange="fileChosen(this,'tally')">
+        </div>
+
+      </div><!-- /upload-grid -->
+
+      <button class="btn-run" id="runBtn" onclick="runReconcile()" disabled>
+        🔍&nbsp; Run Reconciliation
+      </button>
+
+      <div class="error-box" id="errorBox"></div>
+
+    </div><!-- /uploadSection -->
+
+    <!-- ══ LOADING SECTION ══ -->
+    <div id="loadingSection">
+      <div class="spinner"></div>
+      <div class="loading-title">Processing your files…</div>
+      <div class="loading-sub">Matching Portal data with Tally records. This takes a few seconds.</div>
+    </div>
+
+    <!-- ══ RESULTS SECTION ══ -->
+    <div id="resultsSection">
+
+      <div class="results-header">
+        <div class="check">✅</div>
+        <h2>Reconciliation Complete!</h2>
+        <p>Here is the summary. Download the full Excel report below.</p>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-card rc-matched">
+          <div class="num" id="rc_matched">—</div>
+          <div class="lbl">✅ Matched Records</div>
+        </div>
+        <div class="result-card rc-portal">
+          <div class="num" id="rc_portal">—</div>
+          <div class="lbl">❌ Unmatched in Portal</div>
+        </div>
+        <div class="result-card rc-tally">
+          <div class="num" id="rc_tally">—</div>
+          <div class="lbl">⚠️ Unmatched in Tally</div>
+        </div>
+        <div class="result-card rc-notes">
+          <div class="num" id="rc_notes">—</div>
+          <div class="lbl">📝 Credit Notes</div>
+        </div>
+      </div>
+
+      <button class="btn-download" onclick="downloadReport()">
+        ⬇️&nbsp; Download Full Report (.xlsx)
+      </button>
+      <button class="btn-again" onclick="resetAll()">
+        🔄&nbsp; Run Another Reconciliation
+      </button>
+
+    </div><!-- /resultsSection -->
+
+  </div><!-- /container -->
+
+  <script>
+    let gstr2bFile  = null;
+    let tallyFile   = null;
+    let reportBlob  = null;
+
+    /* ── File selection ── */
+    function fileChosen(input, type) {
+      const file = input.files[0];
+      if (!file) return;
+      setFile(type, file);
+    }
+
+    function setFile(type, file) {
+      const nameEl = document.getElementById(`fname_${type}`);
+      const card   = document.getElementById(`card_${type}`);
+      nameEl.textContent = "✓  " + file.name;
+      nameEl.classList.remove("empty");
+      card.classList.add("has-file");
+      if (type === "gstr2b") gstr2bFile = file;
+      else                   tallyFile  = file;
+      updateBtn();
+    }
+
+    function updateBtn() {
+      document.getElementById("runBtn").disabled = !(gstr2bFile && tallyFile);
+    }
+
+    /* ── Drag & drop ── */
+    function onDragOver(e, type) {
+      e.preventDefault();
+      document.getElementById(`card_${type}`).classList.add("drag-over");
+    }
+    function onDragLeave(type) {
+      document.getElementById(`card_${type}`).classList.remove("drag-over");
+    }
+    function onDrop(e, type) {
+      e.preventDefault();
+      document.getElementById(`card_${type}`).classList.remove("drag-over");
+      const file = e.dataTransfer.files[0];
+      if (file) setFile(type, file);
+    }
+
+    /* ── Steps helper ── */
+    function setStep(n) {
+      [1, 2, 3].forEach(i => {
+        const el = document.getElementById(`step${i}`);
+        el.classList.remove("active", "done");
+        if (i < n)  el.classList.add("done");
+        if (i === n) el.classList.add("active");
+      });
+    }
+
+    /* ── Main reconcile ── */
+    async function runReconcile() {
+      document.getElementById("errorBox").style.display = "none";
+      document.getElementById("uploadSection").style.display  = "none";
+      document.getElementById("loadingSection").style.display = "block";
+      setStep(2);
+
+      try {
+        const fd = new FormData();
+        fd.append("gstr2b_file", gstr2bFile);
+        fd.append("tally_file",  tallyFile);
+
+        const res  = await fetch("/reconcile", { method: "POST", body: fd });
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          throw new Error(data.error || "Something went wrong. Please check your files.");
+        }
+
+        /* Store as downloadable blob */
+        const bytes = Uint8Array.from(atob(data.file), c => c.charCodeAt(0));
+        reportBlob  = new Blob([bytes], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+
+        /* Populate summary cards */
+        const s = data.summary;
+        document.getElementById("rc_matched").textContent = s.matched_count;
+        document.getElementById("rc_portal").textContent  = s.unmatched_gstr2b_count;
+        document.getElementById("rc_tally").textContent   = s.unmatched_tally_count;
+        document.getElementById("rc_notes").textContent   = s.gstr2b_credit_notes;
+
+        document.getElementById("loadingSection").style.display  = "none";
+        document.getElementById("resultsSection").style.display  = "block";
+        setStep(3);
+
+      } catch (err) {
+        document.getElementById("loadingSection").style.display = "none";
+        document.getElementById("uploadSection").style.display  = "block";
+        setStep(1);
+        const box = document.getElementById("errorBox");
+        box.textContent = "⚠️  " + err.message;
+        box.style.display = "block";
+      }
+    }
+
+    /* ── Download ── */
+    function downloadReport() {
+      if (!reportBlob) return;
+      const url = URL.createObjectURL(reportBlob);
+      const a   = document.createElement("a");
+      a.href    = url;
+      const ts  = new Date().toISOString().slice(0, 19).replace(/[T:]/g, "-");
+      a.download = `reconciliation_${ts}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* ── Reset ── */
+    function resetAll() {
+      gstr2bFile = null;
+      tallyFile  = null;
+      reportBlob = null;
+
+      ["gstr2b", "tally"].forEach(t => {
+        document.getElementById(`fname_${t}`).textContent = "Click or drag file here";
+        document.getElementById(`fname_${t}`).classList.add("empty");
+        document.getElementById(`card_${t}`).classList.remove("has-file");
+        document.getElementById(`input_${t}`).value = "";
+      });
+
+      document.getElementById("runBtn").disabled = true;
+      document.getElementById("errorBox").style.display     = "none";
+      document.getElementById("resultsSection").style.display = "none";
+      document.getElementById("uploadSection").style.display  = "block";
+      setStep(1);
+    }
+  </script>
+
+</body>
+</html>

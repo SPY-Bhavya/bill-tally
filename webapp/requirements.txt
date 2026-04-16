@@ -1,0 +1,7 @@
+flask>=3.0.0
+pandas>=2.2.0
+xlrd>=2.0.1
+xlsxwriter>=3.1.0
+openpyxl>=3.1.0
+rapidfuzz>=3.6.0
+gunicorn>=21.2.0

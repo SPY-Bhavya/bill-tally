@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python match.py)",
+      "Bash(pip install *)"
+    ]
+  }
+}
