@@ -64,10 +64,12 @@
     .results-actions{display:flex;gap:10px;align-items:center}
 
     /* Summary cards */
-    .summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .summary-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
     .sc{background:#fff;border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}
     .sc .num{font-size:34px;font-weight:900;line-height:1;margin-bottom:5px}
     .sc .lbl{font-size:11.5px;font-weight:600;color:#64748b}
+    .sc-total-portal .num{color:#0369a1}
+    .sc-total-tally  .num{color:#0369a1}
     .sc-matched .num{color:#16a34a}
     .sc-portal  .num{color:#dc2626}
     .sc-tally   .num{color:#d97706}
@@ -209,6 +211,18 @@
 
     <!-- Summary cards -->
     <div class="summary-cards">
+      <div class="sc sc-total-portal">
+        <div class="num" id="rc_total_portal">—</div>
+        <div class="lbl">🏛️ Portal Records</div>
+      </div>
+      <div class="sc sc-total-tally">
+        <div class="num" id="rc_total_tally">—</div>
+        <div class="lbl">📒 Tally Records</div>
+      </div>
+      <div class="sc sc-notes">
+        <div class="num" id="rc_notes">—</div>
+        <div class="lbl">📝 Credit Notes</div>
+      </div>
       <div class="sc sc-matched">
         <div class="num" id="rc_matched">—</div>
         <div class="lbl">✅ Matched</div>
@@ -220,10 +234,6 @@
       <div class="sc sc-tally">
         <div class="num" id="rc_tally">—</div>
         <div class="lbl">⚠️ Unmatched Tally</div>
-      </div>
-      <div class="sc sc-notes">
-        <div class="num" id="rc_notes">—</div>
-        <div class="lbl">📝 Credit Notes</div>
       </div>
     </div>
 
@@ -399,10 +409,12 @@ async function runReconcile(){
 
     // Summary cards
     const s=data.summary;
-    document.getElementById("rc_matched").textContent = s.matched_count;
-    document.getElementById("rc_portal").textContent  = s.unmatched_gstr2b_count;
-    document.getElementById("rc_tally").textContent   = s.unmatched_tally_count;
-    document.getElementById("rc_notes").textContent   = s.gstr2b_credit_notes;
+    document.getElementById("rc_total_portal").textContent = s.gstr2b_invoices_total;
+    document.getElementById("rc_total_tally").textContent  = s.tally_entries_total;
+    document.getElementById("rc_matched").textContent      = s.matched_count;
+    document.getElementById("rc_portal").textContent       = s.unmatched_gstr2b_count;
+    document.getElementById("rc_tally").textContent        = s.unmatched_tally_count;
+    document.getElementById("rc_notes").textContent        = s.gstr2b_credit_notes;
 
     // Tab badges
     document.getElementById("tbadge_matched").textContent = s.matched_count;
