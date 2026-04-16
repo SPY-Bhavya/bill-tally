@@ -173,4 +173,24 @@ def reconcile(gstr2b_path, tally_path, output_path=None,
         matched_df.to_excel(writer, index=False, sheet_name="Matched")
         df_note.to_excel(writer, index=False, sheet_name="Credit_Notes")
 
-    return output_path, summary
+    tables = {
+        "matched":          _df_to_records(matched_df),
+        "unmatched_portal": _df_to_records(unmatched_gstr2b_df),
+        "unmatched_tally":  _df_to_records(unmatched_tally_df),
+        "credit_notes":     _df_to_records(df_note),
+    }
+
+    return output_path, summary, tables
+
+
+def _df_to_records(df):
+    """Convert a DataFrame to a JSON-safe list of dicts. Dates → dd/mm/yyyy strings."""
+    if df is None or df.empty:
+        return []
+    out = df.copy()
+    for col in out.columns:
+        if pd.api.types.is_datetime64_any_dtype(out[col]):
+            out[col] = out[col].dt.strftime("%d/%m/%Y").fillna("")
+        else:
+            out[col] = out[col].fillna("").astype(str).str.strip()
+    return out.to_dict(orient="records")

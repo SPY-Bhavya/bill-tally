@@ -22,7 +22,6 @@ def index():
 
 @app.route("/reconcile", methods=["POST"])
 def run_reconcile():
-    # Validate both files are present
     if "gstr2b_file" not in request.files or "tally_file" not in request.files:
         return jsonify({"error": "Both files are required. Please upload both files."}), 400
 
@@ -49,12 +48,17 @@ def run_reconcile():
         gstr2b_file.save(g_path)
         tally_file.save(t_path)
 
-        _, summary = reconcile(g_path, t_path, output_path=out_path)
+        _, summary, tables = reconcile(g_path, t_path, output_path=out_path)
 
         with open(out_path, "rb") as f:
             file_b64 = base64.b64encode(f.read()).decode("utf-8")
 
-        return jsonify({"success": True, "summary": summary, "file": file_b64})
+        return jsonify({
+            "success": True,
+            "summary": summary,
+            "tables":  tables,
+            "file":    file_b64,
+        })
 
     except Exception as e:
         return jsonify({"error": f"Processing failed: {str(e)}"}), 500

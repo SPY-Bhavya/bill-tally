@@ -1,481 +1,541 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>GST Reconciliation — Sajan Shree Garment</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f0f4f8;
-      min-height: 100vh;
-      color: #1e293b;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh}
 
     /* ── Header ── */
-    .header {
-      background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
-      color: white;
-      padding: 28px 20px;
-      text-align: center;
-    }
-    .header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.3px; }
-    .header p  { margin-top: 6px; opacity: 0.88; font-size: 15px; }
+    .header{background:linear-gradient(135deg,#1d4ed8 0%,#0ea5e9 100%);color:#fff;padding:24px 20px;text-align:center}
+    .header h1{font-size:24px;font-weight:800}
+    .header p{margin-top:5px;opacity:.88;font-size:14px}
 
     /* ── Container ── */
-    .container { max-width: 760px; margin: 36px auto; padding: 0 18px 60px; }
+    .container{max-width:980px;margin:30px auto;padding:0 16px 60px}
 
-    /* ── Steps bar ── */
-    .steps {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-    .step {
-      flex: 1;
-      background: white;
-      border-radius: 14px;
-      padding: 14px 10px;
-      text-align: center;
-      border: 2px solid #e2e8f0;
-      font-size: 13px;
-      font-weight: 600;
-      color: #94a3b8;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .step.active { border-color: #1d4ed8; color: #1d4ed8; }
-    .step.done   { border-color: #16a34a; color: #16a34a; }
-    .step-num {
-      width: 30px; height: 30px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 7px;
-      font-size: 14px; font-weight: 800;
-      background: #e2e8f0; color: #94a3b8;
-      transition: background 0.2s, color 0.2s;
-    }
-    .step.active .step-num { background: #1d4ed8; color: white; }
-    .step.done   .step-num { background: #16a34a; color: white; }
+    /* ── Steps ── */
+    .steps{display:flex;gap:8px;margin-bottom:24px}
+    .step{flex:1;background:#fff;border-radius:12px;padding:12px 8px;text-align:center;border:2px solid #e2e8f0;font-size:12px;font-weight:600;color:#94a3b8;transition:.2s}
+    .step.active{border-color:#1d4ed8;color:#1d4ed8}
+    .step.done{border-color:#16a34a;color:#16a34a}
+    .step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:13px;font-weight:800;background:#e2e8f0;color:#94a3b8;transition:.2s}
+    .step.active .step-num{background:#1d4ed8;color:#fff}
+    .step.done   .step-num{background:#16a34a;color:#fff}
 
-    /* ── Upload section ── */
-    .upload-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 20px;
-    }
+    /* ── Upload cards ── */
+    .upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+    .upload-card{background:#fff;border-radius:16px;padding:28px 18px 22px;border:2.5px dashed #cbd5e1;cursor:pointer;text-align:center;transition:.2s;user-select:none}
+    .upload-card:hover{border-color:#1d4ed8;background:#eff6ff;transform:translateY(-2px)}
+    .upload-card.drag-over{border-color:#1d4ed8;background:#dbeafe}
+    .upload-card.has-file{border-color:#16a34a;border-style:solid;background:#f0fdf4}
+    .upload-card .icon{font-size:40px;margin-bottom:10px;display:block}
+    .upload-card .lbl{font-weight:700;font-size:15px;color:#0f172a;margin-bottom:4px}
+    .upload-card .hint{font-size:12px;color:#64748b;line-height:1.5}
+    .upload-card .fname{margin-top:10px;font-size:12.5px;font-weight:600;color:#16a34a;word-break:break-all}
+    .upload-card .fname.empty{color:#94a3b8;font-weight:400}
+    input[type=file]{display:none}
 
-    .upload-card {
-      background: white;
-      border-radius: 18px;
-      padding: 30px 20px 24px;
-      border: 2.5px dashed #cbd5e1;
-      cursor: pointer;
-      text-align: center;
-      transition: border-color 0.2s, background 0.2s, transform 0.1s;
-      user-select: none;
-    }
-    .upload-card:hover       { border-color: #1d4ed8; background: #eff6ff; transform: translateY(-2px); }
-    .upload-card.drag-over   { border-color: #1d4ed8; background: #dbeafe; }
-    .upload-card.has-file    { border-color: #16a34a; border-style: solid; background: #f0fdf4; }
-
-    .upload-card .icon  { font-size: 46px; margin-bottom: 12px; display: block; }
-    .upload-card .label {
-      font-weight: 700; font-size: 16px;
-      color: #0f172a; margin-bottom: 5px;
-    }
-    .upload-card .hint  { font-size: 12.5px; color: #64748b; line-height: 1.5; }
-    .upload-card .fname {
-      margin-top: 12px;
-      font-size: 13px; font-weight: 600;
-      color: #16a34a;
-      word-break: break-all;
-    }
-    .upload-card .fname.empty { color: #94a3b8; font-weight: 400; }
-
-    input[type="file"] { display: none; }
-
-    /* ── Run button ── */
-    .btn-run {
-      width: 100%;
-      background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(29,78,216,0.35);
-    }
-    .btn-run:hover:not(:disabled) {
-      opacity: 0.93;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(29,78,216,0.40);
-    }
-    .btn-run:active:not(:disabled) { transform: translateY(0); }
-    .btn-run:disabled {
-      background: #cbd5e1;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
+    /* ── Buttons ── */
+    .btn-run{width:100%;background:linear-gradient(135deg,#1d4ed8,#0ea5e9);color:#fff;border:none;border-radius:12px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(29,78,216,.3);transition:.2s}
+    .btn-run:hover:not(:disabled){opacity:.92;transform:translateY(-2px)}
+    .btn-run:disabled{background:#cbd5e1;box-shadow:none;cursor:not-allowed}
+    .btn-download{background:#16a34a;color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(22,163,74,.3);transition:.2s;white-space:nowrap}
+    .btn-download:hover{opacity:.9;transform:translateY(-1px)}
+    .btn-again{background:#fff;color:#1d4ed8;border:2px solid #1d4ed8;border-radius:10px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s}
+    .btn-again:hover{background:#eff6ff}
 
     /* ── Error ── */
-    .error-box {
-      display: none;
-      background: #fef2f2;
-      border: 1.5px solid #fca5a5;
-      color: #b91c1c;
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-top: 16px;
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 1.5;
-    }
+    .error-box{display:none;background:#fef2f2;border:1.5px solid #fca5a5;color:#b91c1c;border-radius:10px;padding:13px 15px;margin-top:14px;font-size:13.5px;font-weight:500}
 
     /* ── Loading ── */
-    #loadingSection {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .spinner {
-      width: 60px; height: 60px;
-      border: 6px solid #e2e8f0;
-      border-top-color: #1d4ed8;
-      border-radius: 50%;
-      animation: spin 0.75s linear infinite;
-      margin: 0 auto 20px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-title { font-size: 20px; font-weight: 700; color: #1e293b; }
-    .loading-sub   { font-size: 14px; color: #64748b; margin-top: 8px; }
+    #loadingSection{display:none;text-align:center;padding:60px 20px}
+    .spinner{width:56px;height:56px;border:6px solid #e2e8f0;border-top-color:#1d4ed8;border-radius:50%;animation:spin .75s linear infinite;margin:0 auto 18px}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
     /* ── Results ── */
-    #resultsSection { display: none; }
+    #resultsSection{display:none}
 
-    .results-header {
-      text-align: center;
-      margin-bottom: 24px;
-    }
-    .results-header .check { font-size: 52px; }
-    .results-header h2 {
-      font-size: 22px; font-weight: 800;
-      color: #0f172a; margin-top: 10px;
-    }
-    .results-header p { font-size: 14px; color: #64748b; margin-top: 4px; }
+    .results-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+    .results-top h2{font-size:20px;font-weight:800;color:#0f172a}
+    .results-top p{font-size:13px;color:#64748b;margin-top:2px}
+    .results-actions{display:flex;gap:10px;align-items:center}
 
-    .results-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    .result-card {
-      background: white;
-      border-radius: 16px;
-      padding: 22px 16px;
-      text-align: center;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-    }
-    .result-card .num  { font-size: 42px; font-weight: 900; line-height: 1; margin-bottom: 8px; }
-    .result-card .lbl  { font-size: 13px; font-weight: 600; color: #64748b; }
-    .rc-matched  .num  { color: #16a34a; }
-    .rc-portal   .num  { color: #dc2626; }
-    .rc-tally    .num  { color: #d97706; }
-    .rc-notes    .num  { color: #7c3aed; }
+    /* Summary cards */
+    .summary-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .sc{background:#fff;border-radius:14px;padding:16px 12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+    .sc .num{font-size:34px;font-weight:900;line-height:1;margin-bottom:5px}
+    .sc .lbl{font-size:11.5px;font-weight:600;color:#64748b}
+    .sc-matched .num{color:#16a34a}
+    .sc-portal  .num{color:#dc2626}
+    .sc-tally   .num{color:#d97706}
+    .sc-notes   .num{color:#7c3aed}
 
-    /* ── Download button ── */
-    .btn-download {
-      width: 100%;
-      background: #16a34a;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(22,163,74,0.35);
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn-download:hover { opacity: 0.92; transform: translateY(-2px); }
+    /* ── Tabs ── */
+    .tab-bar{display:flex;gap:6px;margin-bottom:0;flex-wrap:wrap}
+    .tab-btn{padding:10px 16px;border:none;border-radius:10px 10px 0 0;font-size:13px;font-weight:700;cursor:pointer;background:#e2e8f0;color:#64748b;transition:.15s;display:flex;align-items:center;gap:7px}
+    .tab-btn:hover{background:#cbd5e1}
+    .tab-btn.active{background:#fff;color:#1d4ed8;box-shadow:0 -2px 0 #1d4ed8 inset}
+    .tab-btn .badge{display:inline-block;min-width:20px;padding:1px 6px;border-radius:20px;font-size:11px;font-weight:800;background:#e2e8f0;color:#475569}
+    .tab-btn.active .badge{background:#dbeafe;color:#1d4ed8}
+    .tab-btn.tab-portal  .badge{background:#fee2e2;color:#dc2626}
+    .tab-btn.tab-tally   .badge{background:#fef3c7;color:#d97706}
+    .tab-btn.tab-notes   .badge{background:#ede9fe;color:#7c3aed}
 
-    .btn-again {
-      width: 100%;
-      margin-top: 12px;
-      background: white;
-      color: #1d4ed8;
-      border: 2px solid #1d4ed8;
-      border-radius: 14px;
-      padding: 15px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .btn-again:hover { background: #eff6ff; }
+    /* ── Table panel ── */
+    .tab-panel{background:#fff;border-radius:0 12px 12px 12px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden}
+    .tab-content{display:none}
+    .tab-content.active{display:block}
+
+    .panel-toolbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f1f5f9;gap:10px;flex-wrap:wrap}
+    .search-box{display:flex;align-items:center;gap:8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:7px 12px;flex:1;min-width:180px;max-width:320px}
+    .search-box input{border:none;background:transparent;outline:none;font-size:13px;width:100%;color:#1e293b}
+    .search-box input::placeholder{color:#94a3b8}
+    .row-count{font-size:12.5px;color:#64748b;font-weight:500;white-space:nowrap}
+
+    .table-wrap{overflow-x:auto;max-height:480px;overflow-y:auto}
+    table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:600px}
+    thead th{position:sticky;top:0;background:#f8fafc;padding:10px 12px;text-align:left;font-weight:700;color:#475569;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;white-space:nowrap;z-index:1}
+    tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s}
+    tbody tr:hover{background:#f8fafc}
+    tbody tr:last-child{border-bottom:none}
+    tbody td{padding:9px 12px;color:#334155;vertical-align:middle;white-space:nowrap}
+
+    /* Column-specific styling */
+    td.amt{font-weight:600;color:#1e293b;text-align:right}
+    td.date{color:#475569}
+    td.gstin{font-family:monospace;font-size:11.5px;color:#64748b}
+    td.invno{font-family:monospace;font-size:12px}
+
+    /* Match tier badge */
+    .tier-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+    .tier-1{background:#dcfce7;color:#15803d}
+    .tier-2{background:#fef9c3;color:#a16207}
+    .tier-3{background:#ffedd5;color:#c2410c}
+
+    /* Similarity bar */
+    .sim-wrap{display:flex;align-items:center;gap:6px}
+    .sim-bar-bg{width:60px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+    .sim-bar{height:100%;border-radius:3px;background:#1d4ed8}
+    .sim-num{font-size:11.5px;font-weight:600;color:#475569;white-space:nowrap}
+
+    /* Empty state */
+    .empty-state{text-align:center;padding:48px 20px;color:#94a3b8}
+    .empty-state .ei{font-size:40px;margin-bottom:10px}
+    .empty-state p{font-size:14px;font-weight:600}
 
     /* ── Responsive ── */
-    @media (max-width: 520px) {
-      .upload-grid  { grid-template-columns: 1fr; }
-      .results-grid { grid-template-columns: 1fr 1fr; }
-      .steps        { gap: 6px; }
-      .step         { padding: 10px 6px; font-size: 11px; }
-      .header h1    { font-size: 21px; }
+    @media(max-width:600px){
+      .upload-grid{grid-template-columns:1fr}
+      .summary-cards{grid-template-columns:1fr 1fr}
+      .steps{gap:5px}
+      .step{padding:9px 5px;font-size:10px}
+      .header h1{font-size:20px}
+      .results-top{flex-direction:column;align-items:flex-start}
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="header">
-    <h1>📊 GST Reconciliation Tool</h1>
-    <p>Sajan Shree Garment &nbsp;·&nbsp; GSTR-2B Portal vs Tally Matching</p>
+<div class="header">
+  <h1>📊 GST Reconciliation Tool</h1>
+  <p>Sajan Shree Garment &nbsp;·&nbsp; GSTR-2B Portal vs Tally Matching</p>
+</div>
+
+<div class="container">
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div>Upload Files</div>
+    <div class="step"        id="step2"><div class="step-num">2</div>Process</div>
+    <div class="step"        id="step3"><div class="step-num">3</div>View Results</div>
   </div>
 
-  <div class="container">
+  <!-- ══ UPLOAD ══ -->
+  <div id="uploadSection">
+    <div class="upload-grid">
 
-    <!-- Step indicators -->
-    <div class="steps" id="stepsBar">
-      <div class="step active" id="step1">
-        <div class="step-num">1</div>Upload Files
+      <div class="upload-card" id="card_gstr2b"
+           onclick="document.getElementById('input_gstr2b').click()"
+           ondragover="onDragOver(event,'gstr2b')"
+           ondragleave="onDragLeave('gstr2b')"
+           ondrop="onDrop(event,'gstr2b')">
+        <span class="icon">🏛️</span>
+        <div class="lbl">Portal File</div>
+        <div class="hint">GSTR-2B downloaded from<br>GST Portal &nbsp;<strong>(.xls / .xlsx)</strong></div>
+        <div class="fname empty" id="fname_gstr2b">Click or drag file here</div>
+        <input type="file" id="input_gstr2b" accept=".xls,.xlsx" onchange="fileChosen(this,'gstr2b')">
       </div>
-      <div class="step" id="step2">
-        <div class="step-num">2</div>Process
+
+      <div class="upload-card" id="card_tally"
+           onclick="document.getElementById('input_tally').click()"
+           ondragover="onDragOver(event,'tally')"
+           ondragleave="onDragLeave('tally')"
+           ondrop="onDrop(event,'tally')">
+        <span class="icon">📒</span>
+        <div class="lbl">Tally File</div>
+        <div class="hint">GSTR-3B Voucher Register<br>exported from Tally &nbsp;<strong>(.xls / .xlsx)</strong></div>
+        <div class="fname empty" id="fname_tally">Click or drag file here</div>
+        <input type="file" id="input_tally" accept=".xls,.xlsx" onchange="fileChosen(this,'tally')">
       </div>
-      <div class="step" id="step3">
-        <div class="step-num">3</div>Download Report
+
+    </div>
+    <button class="btn-run" id="runBtn" onclick="runReconcile()" disabled>🔍&nbsp; Run Reconciliation</button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- ══ LOADING ══ -->
+  <div id="loadingSection">
+    <div class="spinner"></div>
+    <div style="font-size:18px;font-weight:700;color:#1e293b">Processing your files…</div>
+    <div style="font-size:13px;color:#64748b;margin-top:8px">Matching Portal data with Tally records. This takes a few seconds.</div>
+  </div>
+
+  <!-- ══ RESULTS ══ -->
+  <div id="resultsSection">
+
+    <div class="results-top">
+      <div>
+        <h2>✅ Reconciliation Complete</h2>
+        <p id="generatedAt"></p>
+      </div>
+      <div class="results-actions">
+        <button class="btn-download" onclick="downloadReport()">⬇️ Download Excel</button>
+        <button class="btn-again"    onclick="resetAll()">🔄 New</button>
       </div>
     </div>
 
-    <!-- ══ UPLOAD SECTION ══ -->
-    <div id="uploadSection">
-
-      <div class="upload-grid">
-
-        <!-- Portal file -->
-        <div class="upload-card"
-             id="card_gstr2b"
-             onclick="document.getElementById('input_gstr2b').click()"
-             ondragover="onDragOver(event,'gstr2b')"
-             ondragleave="onDragLeave('gstr2b')"
-             ondrop="onDrop(event,'gstr2b')">
-          <span class="icon">🏛️</span>
-          <div class="label">Portal File</div>
-          <div class="hint">GSTR-2B downloaded<br>from GST Portal<br><strong>(.xls / .xlsx)</strong></div>
-          <div class="fname empty" id="fname_gstr2b">Click or drag file here</div>
-          <input type="file" id="input_gstr2b" accept=".xls,.xlsx"
-                 onchange="fileChosen(this,'gstr2b')">
-        </div>
-
-        <!-- Tally file -->
-        <div class="upload-card"
-             id="card_tally"
-             onclick="document.getElementById('input_tally').click()"
-             ondragover="onDragOver(event,'tally')"
-             ondragleave="onDragLeave('tally')"
-             ondrop="onDrop(event,'tally')">
-          <span class="icon">📒</span>
-          <div class="label">Tally File</div>
-          <div class="hint">GSTR-3B Voucher Register<br>exported from Tally<br><strong>(.xls / .xlsx)</strong></div>
-          <div class="fname empty" id="fname_tally">Click or drag file here</div>
-          <input type="file" id="input_tally" accept=".xls,.xlsx"
-                 onchange="fileChosen(this,'tally')">
-        </div>
-
-      </div><!-- /upload-grid -->
-
-      <button class="btn-run" id="runBtn" onclick="runReconcile()" disabled>
-        🔍&nbsp; Run Reconciliation
-      </button>
-
-      <div class="error-box" id="errorBox"></div>
-
-    </div><!-- /uploadSection -->
-
-    <!-- ══ LOADING SECTION ══ -->
-    <div id="loadingSection">
-      <div class="spinner"></div>
-      <div class="loading-title">Processing your files…</div>
-      <div class="loading-sub">Matching Portal data with Tally records. This takes a few seconds.</div>
+    <!-- Summary cards -->
+    <div class="summary-cards">
+      <div class="sc sc-matched">
+        <div class="num" id="rc_matched">—</div>
+        <div class="lbl">✅ Matched</div>
+      </div>
+      <div class="sc sc-portal">
+        <div class="num" id="rc_portal">—</div>
+        <div class="lbl">❌ Unmatched Portal</div>
+      </div>
+      <div class="sc sc-tally">
+        <div class="num" id="rc_tally">—</div>
+        <div class="lbl">⚠️ Unmatched Tally</div>
+      </div>
+      <div class="sc sc-notes">
+        <div class="num" id="rc_notes">—</div>
+        <div class="lbl">📝 Credit Notes</div>
+      </div>
     </div>
 
-    <!-- ══ RESULTS SECTION ══ -->
-    <div id="resultsSection">
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active"    onclick="switchTab('matched')"  id="tabBtn_matched">✅ Matched         <span class="badge" id="tbadge_matched">0</span></button>
+      <button class="tab-btn tab-portal" onclick="switchTab('portal')"   id="tabBtn_portal">❌ Unmatched Portal <span class="badge" id="tbadge_portal">0</span></button>
+      <button class="tab-btn tab-tally"  onclick="switchTab('tally')"    id="tabBtn_tally">⚠️ Unmatched Tally  <span class="badge" id="tbadge_tally">0</span></button>
+      <button class="tab-btn tab-notes"  onclick="switchTab('notes')"    id="tabBtn_notes">📝 Credit Notes     <span class="badge" id="tbadge_notes">0</span></button>
+    </div>
 
-      <div class="results-header">
-        <div class="check">✅</div>
-        <h2>Reconciliation Complete!</h2>
-        <p>Here is the summary. Download the full Excel report below.</p>
+    <!-- Table panel -->
+    <div class="tab-panel">
+
+      <!-- Matched -->
+      <div class="tab-content active" id="tab_matched">
+        <div class="panel-toolbar">
+          <div class="search-box">🔍<input type="text" placeholder="Search supplier, invoice, amount…" oninput="filterTable('matched',this.value)"></div>
+          <div class="row-count" id="cnt_matched"></div>
+        </div>
+        <div class="table-wrap" id="tbl_matched"></div>
       </div>
 
-      <div class="results-grid">
-        <div class="result-card rc-matched">
-          <div class="num" id="rc_matched">—</div>
-          <div class="lbl">✅ Matched Records</div>
+      <!-- Unmatched Portal -->
+      <div class="tab-content" id="tab_portal">
+        <div class="panel-toolbar">
+          <div class="search-box">🔍<input type="text" placeholder="Search supplier, invoice…" oninput="filterTable('portal',this.value)"></div>
+          <div class="row-count" id="cnt_portal"></div>
         </div>
-        <div class="result-card rc-portal">
-          <div class="num" id="rc_portal">—</div>
-          <div class="lbl">❌ Unmatched in Portal</div>
-        </div>
-        <div class="result-card rc-tally">
-          <div class="num" id="rc_tally">—</div>
-          <div class="lbl">⚠️ Unmatched in Tally</div>
-        </div>
-        <div class="result-card rc-notes">
-          <div class="num" id="rc_notes">—</div>
-          <div class="lbl">📝 Credit Notes</div>
-        </div>
+        <div class="table-wrap" id="tbl_portal"></div>
       </div>
 
-      <button class="btn-download" onclick="downloadReport()">
-        ⬇️&nbsp; Download Full Report (.xlsx)
-      </button>
-      <button class="btn-again" onclick="resetAll()">
-        🔄&nbsp; Run Another Reconciliation
-      </button>
+      <!-- Unmatched Tally -->
+      <div class="tab-content" id="tab_tally">
+        <div class="panel-toolbar">
+          <div class="search-box">🔍<input type="text" placeholder="Search particulars…" oninput="filterTable('tally',this.value)"></div>
+          <div class="row-count" id="cnt_tally"></div>
+        </div>
+        <div class="table-wrap" id="tbl_tally"></div>
+      </div>
 
-    </div><!-- /resultsSection -->
+      <!-- Credit Notes -->
+      <div class="tab-content" id="tab_notes">
+        <div class="panel-toolbar">
+          <div class="search-box">🔍<input type="text" placeholder="Search supplier…" oninput="filterTable('notes',this.value)"></div>
+          <div class="row-count" id="cnt_notes"></div>
+        </div>
+        <div class="table-wrap" id="tbl_notes"></div>
+      </div>
 
-  </div><!-- /container -->
+    </div><!-- /tab-panel -->
+  </div><!-- /resultsSection -->
 
-  <script>
-    let gstr2bFile  = null;
-    let tallyFile   = null;
-    let reportBlob  = null;
+</div><!-- /container -->
 
-    /* ── File selection ── */
-    function fileChosen(input, type) {
-      const file = input.files[0];
-      if (!file) return;
-      setFile(type, file);
-    }
+<script>
+/* ══════════════════════════════════════════
+   State
+══════════════════════════════════════════ */
+let gstr2bFile = null, tallyFile = null, reportBlob = null;
+let tableData  = {};   // {matched:[], portal:[], tally:[], notes:[]}
 
-    function setFile(type, file) {
-      const nameEl = document.getElementById(`fname_${type}`);
-      const card   = document.getElementById(`card_${type}`);
-      nameEl.textContent = "✓  " + file.name;
-      nameEl.classList.remove("empty");
-      card.classList.add("has-file");
-      if (type === "gstr2b") gstr2bFile = file;
-      else                   tallyFile  = file;
-      updateBtn();
-    }
+/* ══════════════════════════════════════════
+   Column definitions
+══════════════════════════════════════════ */
+const COLS = {
+  matched: [
+    {k:"g2b_Supplier Name",  h:"Portal Supplier",    cls:""},
+    {k:"g2b_GSTIN",          h:"GSTIN",              cls:"gstin"},
+    {k:"g2b_Invoice No",     h:"Invoice No",         cls:"invno"},
+    {k:"g2b_Invoice Date",   h:"Invoice Date",       cls:"date"},
+    {k:"g2b_Invoice Value",  h:"Invoice Value (₹)",  cls:"amt",  fmt:"amt"},
+    {k:"g2b_Taxable Value",  h:"Taxable Value (₹)",  cls:"amt",  fmt:"amt"},
+    {k:"g2b_IGST",           h:"IGST",               cls:"amt",  fmt:"amt"},
+    {k:"g2b_CGST",           h:"CGST",               cls:"amt",  fmt:"amt"},
+    {k:"g2b_SGST",           h:"SGST",               cls:"amt",  fmt:"amt"},
+    {k:"tally_Particulars",  h:"Tally Name",         cls:""},
+    {k:"tally_Vch No",       h:"Vch No",             cls:"invno"},
+    {k:"tally_Date",         h:"Tally Date",         cls:"date"},
+    {k:"tally_Credit Amount",h:"Tally Amount (₹)",   cls:"amt",  fmt:"amt"},
+    {k:"name_similarity",    h:"Name Match",         cls:"",     fmt:"sim"},
+    {k:"date_match_tier",    h:"Date Match",         cls:"",     fmt:"tier"},
+  ],
+  portal: [
+    {k:"sno",              h:"#",              cls:""},
+    {k:"Supplier Name",    h:"Supplier",       cls:""},
+    {k:"GSTIN",            h:"GSTIN",          cls:"gstin"},
+    {k:"Invoice No",       h:"Invoice No",     cls:"invno"},
+    {k:"Invoice Date",     h:"Date",           cls:"date"},
+    {k:"Invoice Value",    h:"Value (₹)",      cls:"amt", fmt:"amt"},
+    {k:"Taxable Value",    h:"Taxable (₹)",    cls:"amt", fmt:"amt"},
+    {k:"IGST",             h:"IGST",           cls:"amt", fmt:"amt"},
+    {k:"CGST",             h:"CGST",           cls:"amt", fmt:"amt"},
+    {k:"SGST",             h:"SGST",           cls:"amt", fmt:"amt"},
+    {k:"Reconcile in period", h:"Period",      cls:""},
+  ],
+  tally: [
+    {k:"Date",           h:"Date",         cls:"date"},
+    {k:"Particulars",    h:"Supplier",     cls:""},
+    {k:"Vch Type",       h:"Type",         cls:""},
+    {k:"Vch No",         h:"Vch No",       cls:"invno"},
+    {k:"Credit Amount",  h:"Amount (₹)",   cls:"amt", fmt:"amt"},
+  ],
+  notes: [
+    {k:"sno",            h:"#",            cls:""},
+    {k:"Supplier Name",  h:"Supplier",     cls:""},
+    {k:"GSTIN",          h:"GSTIN",        cls:"gstin"},
+    {k:"Note No",        h:"Note No",      cls:"invno"},
+    {k:"Note Date",      h:"Date",         cls:"date"},
+    {k:"Note Value",     h:"Value (₹)",    cls:"amt", fmt:"amt"},
+    {k:"Note Type",      h:"Type",         cls:""},
+    {k:"Taxable Value",  h:"Taxable (₹)",  cls:"amt", fmt:"amt"},
+    {k:"IGST",           h:"IGST",         cls:"amt", fmt:"amt"},
+  ],
+};
 
-    function updateBtn() {
-      document.getElementById("runBtn").disabled = !(gstr2bFile && tallyFile);
-    }
+/* ══════════════════════════════════════════
+   Upload helpers
+══════════════════════════════════════════ */
+function fileChosen(input, type){ if(input.files[0]) setFile(type, input.files[0]); }
+function setFile(type, file){
+  document.getElementById(`fname_${type}`).textContent = "✓  "+file.name;
+  document.getElementById(`fname_${type}`).classList.remove("empty");
+  document.getElementById(`card_${type}`).classList.add("has-file");
+  if(type==="gstr2b") gstr2bFile=file; else tallyFile=file;
+  document.getElementById("runBtn").disabled = !(gstr2bFile&&tallyFile);
+}
+function onDragOver(e,t){ e.preventDefault(); document.getElementById(`card_${t}`).classList.add("drag-over"); }
+function onDragLeave(t){ document.getElementById(`card_${t}`).classList.remove("drag-over"); }
+function onDrop(e,t){ e.preventDefault(); onDragLeave(t); if(e.dataTransfer.files[0]) setFile(t,e.dataTransfer.files[0]); }
 
-    /* ── Drag & drop ── */
-    function onDragOver(e, type) {
-      e.preventDefault();
-      document.getElementById(`card_${type}`).classList.add("drag-over");
-    }
-    function onDragLeave(type) {
-      document.getElementById(`card_${type}`).classList.remove("drag-over");
-    }
-    function onDrop(e, type) {
-      e.preventDefault();
-      document.getElementById(`card_${type}`).classList.remove("drag-over");
-      const file = e.dataTransfer.files[0];
-      if (file) setFile(type, file);
-    }
+/* ══════════════════════════════════════════
+   Steps
+══════════════════════════════════════════ */
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const el=document.getElementById(`step${i}`);
+    el.classList.remove("active","done");
+    if(i<n) el.classList.add("done");
+    if(i===n) el.classList.add("active");
+  });
+}
 
-    /* ── Steps helper ── */
-    function setStep(n) {
-      [1, 2, 3].forEach(i => {
-        const el = document.getElementById(`step${i}`);
-        el.classList.remove("active", "done");
-        if (i < n)  el.classList.add("done");
-        if (i === n) el.classList.add("active");
-      });
-    }
+/* ══════════════════════════════════════════
+   Main reconcile call
+══════════════════════════════════════════ */
+async function runReconcile(){
+  document.getElementById("errorBox").style.display="none";
+  document.getElementById("uploadSection").style.display="none";
+  document.getElementById("loadingSection").style.display="block";
+  setStep(2);
 
-    /* ── Main reconcile ── */
-    async function runReconcile() {
-      document.getElementById("errorBox").style.display = "none";
-      document.getElementById("uploadSection").style.display  = "none";
-      document.getElementById("loadingSection").style.display = "block";
-      setStep(2);
+  try{
+    const fd=new FormData();
+    fd.append("gstr2b_file", gstr2bFile);
+    fd.append("tally_file",  tallyFile);
 
-      try {
-        const fd = new FormData();
-        fd.append("gstr2b_file", gstr2bFile);
-        fd.append("tally_file",  tallyFile);
+    const res  = await fetch("/reconcile",{method:"POST",body:fd});
+    const data = await res.json();
+    if(!res.ok||data.error) throw new Error(data.error||"Something went wrong.");
 
-        const res  = await fetch("/reconcile", { method: "POST", body: fd });
-        const data = await res.json();
+    // Store Excel blob
+    const bytes=Uint8Array.from(atob(data.file),c=>c.charCodeAt(0));
+    reportBlob=new Blob([bytes],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
 
-        if (!res.ok || data.error) {
-          throw new Error(data.error || "Something went wrong. Please check your files.");
-        }
+    // Store table data
+    tableData = {
+      matched: data.tables.matched,
+      portal:  data.tables.unmatched_portal,
+      tally:   data.tables.unmatched_tally,
+      notes:   data.tables.credit_notes,
+    };
 
-        /* Store as downloadable blob */
-        const bytes = Uint8Array.from(atob(data.file), c => c.charCodeAt(0));
-        reportBlob  = new Blob([bytes], {
-          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
+    // Summary cards
+    const s=data.summary;
+    document.getElementById("rc_matched").textContent = s.matched_count;
+    document.getElementById("rc_portal").textContent  = s.unmatched_gstr2b_count;
+    document.getElementById("rc_tally").textContent   = s.unmatched_tally_count;
+    document.getElementById("rc_notes").textContent   = s.gstr2b_credit_notes;
 
-        /* Populate summary cards */
-        const s = data.summary;
-        document.getElementById("rc_matched").textContent = s.matched_count;
-        document.getElementById("rc_portal").textContent  = s.unmatched_gstr2b_count;
-        document.getElementById("rc_tally").textContent   = s.unmatched_tally_count;
-        document.getElementById("rc_notes").textContent   = s.gstr2b_credit_notes;
+    // Tab badges
+    document.getElementById("tbadge_matched").textContent = s.matched_count;
+    document.getElementById("tbadge_portal").textContent  = s.unmatched_gstr2b_count;
+    document.getElementById("tbadge_tally").textContent   = s.unmatched_tally_count;
+    document.getElementById("tbadge_notes").textContent   = s.gstr2b_credit_notes;
 
-        document.getElementById("loadingSection").style.display  = "none";
-        document.getElementById("resultsSection").style.display  = "block";
-        setStep(3);
+    document.getElementById("generatedAt").textContent = "Generated on "+s.generated_at.replace("T"," ");
 
-      } catch (err) {
-        document.getElementById("loadingSection").style.display = "none";
-        document.getElementById("uploadSection").style.display  = "block";
-        setStep(1);
-        const box = document.getElementById("errorBox");
-        box.textContent = "⚠️  " + err.message;
-        box.style.display = "block";
-      }
-    }
+    // Render all tables
+    renderTable("matched", tableData.matched, COLS.matched);
+    renderTable("portal",  tableData.portal,  COLS.portal);
+    renderTable("tally",   tableData.tally,   COLS.tally);
+    renderTable("notes",   tableData.notes,   COLS.notes);
 
-    /* ── Download ── */
-    function downloadReport() {
-      if (!reportBlob) return;
-      const url = URL.createObjectURL(reportBlob);
-      const a   = document.createElement("a");
-      a.href    = url;
-      const ts  = new Date().toISOString().slice(0, 19).replace(/[T:]/g, "-");
-      a.download = `reconciliation_${ts}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
+    document.getElementById("loadingSection").style.display="none";
+    document.getElementById("resultsSection").style.display="block";
+    setStep(3);
 
-    /* ── Reset ── */
-    function resetAll() {
-      gstr2bFile = null;
-      tallyFile  = null;
-      reportBlob = null;
+  }catch(err){
+    document.getElementById("loadingSection").style.display="none";
+    document.getElementById("uploadSection").style.display="block";
+    setStep(1);
+    const box=document.getElementById("errorBox");
+    box.textContent="⚠️  "+err.message;
+    box.style.display="block";
+  }
+}
 
-      ["gstr2b", "tally"].forEach(t => {
-        document.getElementById(`fname_${t}`).textContent = "Click or drag file here";
-        document.getElementById(`fname_${t}`).classList.add("empty");
-        document.getElementById(`card_${t}`).classList.remove("has-file");
-        document.getElementById(`input_${t}`).value = "";
-      });
+/* ══════════════════════════════════════════
+   Table rendering
+══════════════════════════════════════════ */
+function fmtAmt(v){
+  const n=parseFloat(v);
+  if(isNaN(n)||v==="") return v;
+  return "₹ "+n.toLocaleString("en-IN",{minimumFractionDigits:0,maximumFractionDigits:2});
+}
 
-      document.getElementById("runBtn").disabled = true;
-      document.getElementById("errorBox").style.display     = "none";
-      document.getElementById("resultsSection").style.display = "none";
-      document.getElementById("uploadSection").style.display  = "block";
-      setStep(1);
-    }
-  </script>
+function fmtTier(v){
+  const map={1:["tier-1","Exact"],2:["tier-2","Close (±3d)"],3:["tier-3","Flexible"]};
+  const [cls,label]=map[v]||map[3];
+  return `<span class="tier-badge ${cls}">${label}</span>`;
+}
 
+function fmtSim(v){
+  const n=parseFloat(v)||0;
+  const color = n>=90?"#16a34a":n>=70?"#d97706":"#dc2626";
+  return `<div class="sim-wrap">
+    <div class="sim-bar-bg"><div class="sim-bar" style="width:${n}%;background:${color}"></div></div>
+    <span class="sim-num">${n}%</span>
+  </div>`;
+}
+
+function cellHTML(col, row){
+  const raw = (row[col.k] !== undefined && row[col.k] !== null) ? String(row[col.k]) : "";
+  if(col.fmt==="amt")  return `<td class="${col.cls} amt">${raw===""||raw==="0"||raw==="0.0"?"—":fmtAmt(raw)}</td>`;
+  if(col.fmt==="tier") return `<td>${fmtTier(raw)}</td>`;
+  if(col.fmt==="sim")  return `<td>${fmtSim(raw)}</td>`;
+  return `<td class="${col.cls}">${raw||"—"}</td>`;
+}
+
+function buildTableHTML(rows, cols){
+  if(!rows||!rows.length){
+    return `<div class="empty-state"><div class="ei">🎉</div><p>No records in this category</p></div>`;
+  }
+  let h=`<table><thead><tr>${cols.map(c=>`<th>${c.h}</th>`).join("")}</tr></thead><tbody>`;
+  rows.forEach(row=>{
+    h+=`<tr>${cols.map(c=>cellHTML(c,row)).join("")}</tr>`;
+  });
+  h+=`</tbody></table>`;
+  return h;
+}
+
+function renderTable(name, rows, cols){
+  document.getElementById(`tbl_${name}`).innerHTML = buildTableHTML(rows, cols);
+  document.getElementById(`cnt_${name}`).textContent = (rows||[]).length+" records";
+}
+
+/* ══════════════════════════════════════════
+   Tab switching
+══════════════════════════════════════════ */
+function switchTab(name){
+  document.querySelectorAll(".tab-content").forEach(el=>el.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(el=>el.classList.remove("active"));
+  document.getElementById(`tab_${name}`).classList.add("active");
+  document.getElementById(`tabBtn_${name}`).classList.add("active");
+}
+
+/* ══════════════════════════════════════════
+   Search / filter
+══════════════════════════════════════════ */
+function filterTable(name, query){
+  const q=query.trim().toLowerCase();
+  const source = name==="matched"?"matched":name==="portal"?"portal":name==="tally"?"tally":"notes";
+  const rows = !q ? tableData[source] : tableData[source].filter(row=>
+    Object.values(row).some(v=>String(v).toLowerCase().includes(q))
+  );
+  const cols = COLS[name];
+  document.getElementById(`tbl_${name}`).innerHTML = buildTableHTML(rows, cols);
+  document.getElementById(`cnt_${name}`).textContent = rows.length+" records"+(q?" (filtered)":"");
+}
+
+/* ══════════════════════════════════════════
+   Download
+══════════════════════════════════════════ */
+function downloadReport(){
+  if(!reportBlob) return;
+  const url=URL.createObjectURL(reportBlob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=`reconciliation_${new Date().toISOString().slice(0,10)}.xlsx`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/* ══════════════════════════════════════════
+   Reset
+══════════════════════════════════════════ */
+function resetAll(){
+  gstr2bFile=null; tallyFile=null; reportBlob=null; tableData={};
+  ["gstr2b","tally"].forEach(t=>{
+    document.getElementById(`fname_${t}`).textContent="Click or drag file here";
+    document.getElementById(`fname_${t}`).classList.add("empty");
+    document.getElementById(`card_${t}`).classList.remove("has-file");
+    document.getElementById(`input_${t}`).value="";
+  });
+  document.getElementById("runBtn").disabled=true;
+  document.getElementById("errorBox").style.display="none";
+  document.getElementById("resultsSection").style.display="none";
+  document.getElementById("uploadSection").style.display="block";
+  setStep(1);
+  switchTab("matched");
+}
+</script>
 </body>
 </html>
