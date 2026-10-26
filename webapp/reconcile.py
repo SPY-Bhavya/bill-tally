@@ -28,8 +28,24 @@ def _parse_gstr2b(path):
     """
     xl = pd.ExcelFile(path)
 
+    def _parse_sheet(name):
+        # Locate sheet case-insensitively and the header row by finding 'sno'
+        sheet = next((s for s in xl.sheet_names if s.strip().lower() == name), None)
+        if sheet is None:
+            raise ValueError(
+                f"Sheet '{name}' not found in portal file (found: {xl.sheet_names})"
+            )
+        raw = xl.parse(sheet, header=None)
+        for i in range(min(len(raw), 30)):
+            if any(str(v).strip().lower() == "sno" for v in raw.iloc[i].values):
+                df = raw.iloc[i + 1:].copy()
+                df.columns = [str(c).strip() for c in raw.iloc[i].values]
+                df = df.rename(columns={c: "sno" for c in df.columns if c.lower() == "sno"})
+                return df.reset_index(drop=True)
+        raise ValueError(f"Could not find 'sno' header row in sheet '{sheet}'")
+
     # ---- Invoice sheet ----
-    df_inv = xl.parse("invoice", header=2)
+    df_inv = _parse_sheet("invoice")
     df_inv = df_inv[pd.to_numeric(df_inv["sno"], errors="coerce").notna()].copy()
     df_inv["Invoice Date"] = pd.to_datetime(
         df_inv["Invoice Date"], dayfirst=True, errors="coerce"
@@ -38,7 +54,7 @@ def _parse_gstr2b(path):
     df_inv = df_inv.sort_values("Invoice Date").reset_index(drop=True)
 
     # ---- Note sheet ----
-    df_note = xl.parse("note", header=2)
+    df_note = _parse_sheet("note")
     df_note = df_note[pd.to_numeric(df_note["sno"], errors="coerce").notna()].copy()
     if "Note Date" in df_note.columns:
         df_note["Note Date"] = pd.to_datetime(
